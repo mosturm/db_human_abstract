@@ -16,7 +16,7 @@ st.set_page_config(
 # 1. Paths / constants
 # -----------------------------------------------------------------------------
 SAMPLE_JSON_PATH = "sample_200.json"
-CSV_PATH = "matches.csv"   # ID, GPT, and per-user columns
+CSV_PATH = "matches_orig.csv"   # ID, GPT, and per-user columns
 
 
 # -----------------------------------------------------------------------------
