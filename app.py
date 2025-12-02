@@ -18,14 +18,18 @@ def upload_to_dropbox(local_file, remote_name="gpt_matches.csv"):
         )
 
 def download_from_dropbox(remote_name="gpt_matches.csv", local_file="gpt_matches.csv"):
+    path = f"{DROPBOX_FOLDER}/{remote_name}"
+    st.write("DEBUG DROPBOX PATH:", f"{DROPBOX_FOLDER}/{remote_name}")
     try:
-        st.write("DEBUG DROPBOX PATH:", f"{DROPBOX_FOLDER}/{remote_name}")
-        md, res = dbx.files_download(f"{DROPBOX_FOLDER}/{remote_name}")
-        with open(local_file, "wb") as f:
-            f.write(res.content)
-        return True
-    except dropbox.exceptions.ApiError:
+        md, res = dbx.files_download(path)
+    except dropbox.exceptions.ApiError as e:
+        # If folder or file does not exist yet, just skip
         return False
+
+    with open(local_file, "wb") as f:
+        f.write(res.content)
+    return True
+
 
 
 if download_from_dropbox():
