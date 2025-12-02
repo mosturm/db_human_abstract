@@ -190,8 +190,8 @@ st.markdown(
 
 After reading the title and abstract:
 
-- **Yes** → The paper fits the topic **and** mentions a database/study/cohort (named or unnamed).  
-- **No** → The paper does *not* fit the topic **or** it fits but does *not* mention any database/study/cohort.
+- **Yes** → The paper fits the topic **and** mentions a database/study/cohort name (the name has to be explicit).  
+- **No** → The paper does *not* fit the topic **or** it fits but does *not* explicitly mention any database/study/cohort name.
 
 Use the **Yes/No** buttons below each abstract.  
 Each user must label all **200 entries**.
