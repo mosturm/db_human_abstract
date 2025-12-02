@@ -1,9 +1,36 @@
 import streamlit as st
+import dropbox
 import pandas as pd
 import json
 import os
 import random
 
+
+dbx = dropbox.Dropbox(st.secrets["DROPBOX_TOKEN"])
+DROPBOX_FOLDER = st.secrets["DROPBOX_FOLDER"]
+
+def upload_to_dropbox(local_file, remote_name="gpt_matches.csv"):
+    with open(local_file, "rb") as f:
+        dbx.files_upload(
+            f.read(),
+            f"{DROPBOX_FOLDER}/{remote_name}",
+            mode=dropbox.files.WriteMode("overwrite")
+        )
+
+def download_from_dropbox(remote_name="gpt_matches.csv", local_file="gpt_matches.csv"):
+    try:
+        md, res = dbx.files_download(f"{DROPBOX_FOLDER}/{remote_name}")
+        with open(local_file, "wb") as f:
+            f.write(res.content)
+        return True
+    except dropbox.exceptions.ApiError:
+        return False
+
+
+if download_from_dropbox():
+    st.info("Loaded latest CSV from Dropbox.")
+else:
+    st.warning("No Dropbox CSV found — using local file.")
 # -----------------------------------------------------------------------------
 # 0. Page config
 # -----------------------------------------------------------------------------
@@ -16,7 +43,7 @@ st.set_page_config(
 # 1. Paths / constants
 # -----------------------------------------------------------------------------
 SAMPLE_JSON_PATH = "sample_200.json"
-CSV_PATH = "matches_orig.csv"   # ID, GPT, and per-user columns
+CSV_PATH = "gpt_matches.csv"   # ID, GPT, and per-user columns
 
 
 # -----------------------------------------------------------------------------
@@ -256,6 +283,8 @@ def update_label_and_rerun(label_value: int):
     if pd.isna(current_val):
         ann_df_local.loc[mask, username] = label_value
         save_annotations(ann_df_local)
+        upload_to_dropbox("gpt_matches.csv")
+        
     # else: do nothing, preserves previous decision
 
     # Force picking a new ID on next run
