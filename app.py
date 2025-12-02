@@ -7,23 +7,32 @@ import random
 
 
 dbx = dropbox.Dropbox(st.secrets["DROPBOX_TOKEN"])
-DROPBOX_FOLDER = st.secrets["DROPBOX_FOLDER"]
+REMOTE_CSV_PATH = st.secrets["DROPBOX_PATH"]  # e.g. "/gpt_matches.csv"
 
-def upload_to_dropbox(local_file, remote_name="gpt_matches.csv"):
-    with open(local_file, "rb") as f:
-        dbx.files_upload(
-            f.read(),
-            f"{DROPBOX_FOLDER}/{remote_name}",
-            mode=dropbox.files.WriteMode("overwrite")
-        )
 
-def download_from_dropbox(remote_name="gpt_matches.csv", local_file="gpt_matches.csv"):
-    path = f"{DROPBOX_FOLDER}/{remote_name}"
-    st.write("DEBUG DROPBOX PATH:", f"{DROPBOX_FOLDER}/{remote_name}")
+def upload_to_dropbox(local_file="gpt_matches.csv"):
+    """Upload local CSV to Dropbox at REMOTE_CSV_PATH."""
     try:
-        md, res = dbx.files_download(path)
-    except dropbox.exceptions.ApiError as e:
-        # If folder or file does not exist yet, just skip
+        with open(local_file, "rb") as f:
+            dbx.files_upload(
+                f.read(),
+                REMOTE_CSV_PATH,
+                mode=dropbox.files.WriteMode("overwrite")
+            )
+    except Exception as e:
+        st.warning(f"Could not upload CSV to Dropbox: {e}")
+
+
+def download_from_dropbox(local_file="gpt_matches.csv"):
+    """Download CSV from Dropbox to local file. Returns True if successful."""
+    try:
+        md, res = dbx.files_download(REMOTE_CSV_PATH)
+    except dropbox.exceptions.ApiError:
+        # Probably file not found yet -> treat as first run
+        return False
+    except Exception as e:
+        # Any other bad input / token / etc.
+        st.warning(f"Could not download CSV from Dropbox: {e}")
         return False
 
     with open(local_file, "wb") as f:
