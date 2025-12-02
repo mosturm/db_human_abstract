@@ -19,6 +19,7 @@ def upload_to_dropbox(local_file, remote_name="gpt_matches.csv"):
 
 def download_from_dropbox(remote_name="gpt_matches.csv", local_file="gpt_matches.csv"):
     try:
+        st.write("DEBUG DROPBOX PATH:", f"{DROPBOX_FOLDER}/{remote_name}")
         md, res = dbx.files_download(f"{DROPBOX_FOLDER}/{remote_name}")
         with open(local_file, "wb") as f:
             f.write(res.content)
