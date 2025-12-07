@@ -6,7 +6,11 @@ import os
 import random
 
 
-dbx = dropbox.Dropbox(st.secrets["DROPBOX_TOKEN"])
+dbx = dropbox.Dropbox(
+    app_key=st.secrets["DROPBOX_APP_KEY"],
+    app_secret=st.secrets["DROPBOX_APP_SECRET"],
+    oauth2_refresh_token=st.secrets["DROPBOX_REFRESH_TOKEN"],
+)
 REMOTE_CSV_PATH = st.secrets["DROPBOX_PATH"]  # e.g. "/gpt_matches.csv"
 
 
@@ -28,10 +32,9 @@ def download_from_dropbox(local_file="gpt_matches.csv"):
     try:
         md, res = dbx.files_download(REMOTE_CSV_PATH)
     except dropbox.exceptions.ApiError:
-        # Probably file not found yet -> treat as first run
+        # File not found yet -> treat as first run
         return False
     except Exception as e:
-        # Any other bad input / token / etc.
         st.warning(f"Could not download CSV from Dropbox: {e}")
         return False
 
